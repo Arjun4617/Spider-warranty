@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Warranty Registration</title>
+  <style>
+    :root {
+      --bg:           #f5f5f7;
+      --surface:      #ffffff;
+      --surface-2:    #f5f5f7;
+      --ink-1:        #1d1d1f;
+      --ink-2:        #6e6e73;
+      --ink-3:        #a1a1a6;
+      --separator:    rgba(60,60,67,.12);
+      --sep-opaque:   #e5e5ea;
+      --accent:       #c0392b;
+      --accent-dim:   rgba(192,57,43,.08);
+      --accent-mid:   rgba(192,57,43,.15);
+      --ok:           #34c759;
+      --ok-bg:        rgba(52,199,89,.1);
+      --r-sm:  10px;
+      --r-md:  13px;
+      --r-lg:  18px;
+      --r-xl:  24px;
+      --r-pill:100px;
+      --shadow-card: 0 2px 12px rgba(0,0,0,.07), 0 0 0 .5px rgba(0,0,0,.05);
+      --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'Segoe UI', Arial, sans-serif;
+      --ease: cubic-bezier(.4,0,.2,1);
+      --spring: cubic-bezier(.34,1.56,.64,1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--ink-1);
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Layout ── */
+    .page {
+      width: 100%;
+      max-width: 430px;
+      margin: 0 auto;
+      padding-bottom: 48px;
+    }
+    @media (min-width: 500px) {
+      body { padding: 40px 20px 60px; display: flex; justify-content: center; align-items: flex-start; }
+      .page { border-radius: var(--r-xl); overflow: hidden; box-shadow: 0 24px 80px rgba(0,0,0,.14); }
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: var(--ink-1);
+      padding: 52px 24px 36px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 120% 0%, rgba(192,57,43,.22) 0%, transparent 60%),
+                  radial-gradient(ellipse at -20% 100%, rgba(100,100,120,.15) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    .hero-label {
+      font-size: 12px; font-weight: 600; letter-spacing: .6px;
+      color: rgba(255,255,255,.4); text-transform: uppercase;
+      margin-bottom: 10px; position: relative;
+    }
+    .hero h1 {
+      font-size: clamp(32px, 8vw, 40px); font-weight: 700;
+      letter-spacing: -.8px; color: #fff; line-height: 1.05; position: relative;
+    }
+    .hero h1 span { color: rgba(255,255,255,.4); font-weight: 300; }
+    .hero-sub {
+      font-size: 14px; color: rgba(255,255,255,.42);
+      margin-top: 10px; line-height: 1.55; position: relative;
+    }
+
+    /* ── Segmented control ── */
+    .seg-wrap {
+      background: var(--ink-1);
+      padding: 0 16px 16px;
+    }
+    .seg-ctrl {
+      display: grid; grid-template-columns: 1fr 1fr;
+      background: rgba(255,255,255,.1);
+      border-radius: var(--r-sm); padding: 3px; position: relative;
+    }
+    .seg-btn {
+      padding: 8px 4px; font-family: var(--font); font-size: 13px; font-weight: 600;
+      color: rgba(255,255,255,.5); background: none; border: none;
+      border-radius: calc(var(--r-sm) - 3px); cursor: pointer;
+      transition: color .2s var(--ease); position: relative; z-index: 1;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .seg-btn.active { color: var(--ink-1); }
+    .seg-indicator {
+      position: absolute; top: 3px; bottom: 3px;
+      width: calc(50% - 3px); left: 3px;
+      background: #fff; border-radius: calc(var(--r-sm) - 3px);
+      box-shadow: 0 1px 4px rgba(0,0,0,.2);
+      transition: transform .25s var(--ease); pointer-events: none;
+    }
+    .seg-indicator.right { transform: translateX(calc(100%)); }
+
+    /* ── Panels ── */
+    .panel { display: none; background: var(--bg); }
+    .panel.active { display: block; }
+
+    /* ── Groups (iOS Settings style) ── */
+    .group { margin: 20px 16px 0; }
+    .group-label {
+      font-size: 11px; font-weight: 600; letter-spacing: .3px;
+      color: var(--ink-2); text-transform: uppercase;
+      padding: 0 4px; margin-bottom: 7px;
+    }
+    .group-card {
+      background: var(--surface); border-radius: var(--r-lg);
+      overflow: hidden; box-shadow: var(--shadow-card);
+    }
+    .field-row {
+      display: flex; align-items: center;
+      padding: 0 16px; min-height: 52px; position: relative;
+    }
+    .field-row + .field-row::before {
+      content: ''; position: absolute; top: 0; left: 16px; right: 0;
+      height: .5px; background: var(--separator);
+    }
+    .field-row label {
+      font-size: 15px; font-weight: 400; color: var(--ink-1);
+      min-width: 110px; flex-shrink: 0; pointer-events: none; user-select: none;
+    }
+    .field-row input,
+    .field-row select {
+      flex: 1; border: none; outline: none; font-family: var(--font);
+      font-size: 15px; color: var(--ink-1); background: transparent;
+      text-align: right; padding: 14px 0;
+      -webkit-appearance: none; appearance: none; min-width: 0;
+    }
+    .field-row input::placeholder { color: var(--ink-3); }
+    .field-row select { cursor: pointer; }
+    .field-row input[readonly] { color: var(--ink-2); cursor: default; }
+    .field-row.has-select::after {
+      content: ''; width: 7px; height: 7px; flex-shrink: 0;
+      border-right: 1.5px solid var(--ink-3); border-bottom: 1.5px solid var(--ink-3);
+      transform: rotate(45deg) translateY(-3px); margin-left: 6px; pointer-events: none;
+    }
+    .field-icon { color: var(--ink-3); flex-shrink: 0; margin-left: 8px; }
+
+    /* ── Progress dots ── */
+    .progress-row {
+      display: flex; justify-content: center; gap: 6px; padding: 18px 0 4px;
+    }
+    .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--sep-opaque); transition: all .3s var(--ease);
+    }
+    .dot.filled { background: var(--accent); transform: scale(1.2); }
+
+    /* ── Chips ── */
+    .chips-group { margin: 20px 16px 0; }
+    .chips-label {
+      font-size: 11px; font-weight: 600; color: var(--ink-2);
+      letter-spacing: .3px; text-transform: uppercase;
+      padding: 0 4px; margin-bottom: 10px;
+    }
+    .chips-box {
+      background: var(--surface); border-radius: var(--r-lg);
+      padding: 14px; display: flex; flex-wrap: wrap; gap: 8px;
+      box-shadow: var(--shadow-card);
+    }
+    .chip {
+      padding: 7px 15px; border-radius: var(--r-pill); font-size: 14px; font-weight: 500;
+      border: 1px solid var(--sep-opaque); background: var(--surface-2); color: var(--ink-1);
+      cursor: pointer; transition: all .18s var(--ease);
+      -webkit-tap-highlight-color: transparent; user-select: none;
+    }
+    .chip:active { transform: scale(.95); }
+    .chip.active {
+      background: var(--accent); color: #fff; border-color: var(--accent);
+      box-shadow: 0 4px 14px rgba(192,57,43,.28);
+    }
+
+    /* Other input slide-in */
+    .other-wrap {
+      max-height: 0; overflow: hidden; opacity: 0; margin-top: 0;
+      transition: max-height .3s var(--ease), opacity .25s var(--ease), margin .25s var(--ease);
+    }
+    .other-wrap.open { max-height: 80px; opacity: 1; margin-top: 10px; }
+    .other-wrap input {
+      width: 100%; padding: 12px 16px; border-radius: var(--r-md);
+      border: 1.5px solid var(--accent-mid); background: var(--surface);
+      font-family: var(--font); font-size: 15px; color: var(--ink-1);
+      outline: none; transition: border-color .2s, box-shadow .2s;
+    }
+    .other-wrap input:focus {
+      border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+    .other-wrap input::placeholder { color: var(--ink-3); }
+
+    /* ── CTA ── */
+    .cta-wrap { margin: 24px 16px 0; }
+    .cta-btn {
+      width: 100%; padding: 16px; border: none; border-radius: var(--r-lg);
+      background: var(--accent); color: #fff; font-family: var(--font);
+      font-size: 17px; font-weight: 600; letter-spacing: -.2px; cursor: pointer;
+      transition: all .15s var(--ease); -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 4px 20px rgba(192,57,43,.3);
+    }
+    .cta-btn:active  { transform: scale(.98); box-shadow: 0 2px 8px rgba(192,57,43,.2); }
+    .cta-btn:disabled { background: var(--sep-opaque); color: var(--ink-3); box-shadow: none; cursor: not-allowed; }
+    .clear-btn {
+      width: 100%; margin-top: 10px; padding: 13px; border: none;
+      border-radius: var(--r-lg); background: var(--surface); color: var(--ink-2);
+      font-family: var(--font); font-size: 15px; font-weight: 500; cursor: pointer;
+      transition: background .15s; -webkit-tap-highlight-color: transparent;
+      box-shadow: var(--shadow-card);
+    }
+    .clear-btn:active { background: var(--sep-opaque); }
+    .status-msg {
+      margin-top: 12px; font-size: 13px; font-weight: 500;
+      color: var(--accent); text-align: center; min-height: 18px;
+    }
+    .btn-spinner {
+      display: inline-block; width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,.35); border-top-color: #fff;
+      border-radius: 50%; animation: spin .65s linear infinite;
+      vertical-align: -3px; margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Success view ── */
+    #successView {
+      display: none; padding: 56px 24px 40px; text-align: center;
+      background: var(--surface); animation: rise .4s var(--ease) both;
+    }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(20px) scale(.98); }
+      to   { opacity: 1; transform: none; }
+    }
+    .success-icon {
+      width: 72px; height: 72px; background: var(--ok-bg); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
+    }
+    .success-icon svg { animation: pop .4s var(--spring) .15s both; }
+    @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+    #successView h2 {
+      font-size: 26px; font-weight: 700; letter-spacing: -.4px;
+      color: var(--ink-1); margin-bottom: 6px;
+    }
+    #successView p { font-size: 15px; color: var(--ink-2); line-height: 1.55; }
+    .conf-list {
+      margin-top: 24px; background: var(--surface-2); border-radius: var(--r-lg);
+      overflow: hidden; text-align: left; box-shadow: var(--shadow-card);
+    }
+    .conf-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 13px 16px; font-size: 15px;
+    }
+    .conf-row + .conf-row { border-top: .5px solid var(--separator); }
+    .conf-lbl { color: var(--ink-2); font-size: 14px; }
+    .conf-val { font-weight: 600; color: var(--ink-1); font-size: 14px; text-align: right; max-width: 60%; }
+    .again-btn {
+      width: 100%; margin-top: 16px; padding: 14px; border-radius: var(--r-lg);
+      border: none; background: var(--surface-2); color: var(--accent);
+      font-family: var(--font); font-size: 16px; font-weight: 600; cursor: pointer;
+      transition: background .15s; -webkit-tap-highlight-color: transparent;
+    }
+    .again-btn:active { background: var(--sep-opaque); }
+
+    /* ── Check panel ── */
+    .check-hero { padding: 24px 16px 0; }
+    .check-hero h2 { font-size: 22px; font-weight: 700; letter-spacing: -.4px; margin-bottom: 4px; }
+    .check-hero p  { font-size: 14px; color: var(--ink-2); line-height: 1.5; }
+    .search-group  { margin: 16px 16px 0; display: flex; gap: 10px; align-items: stretch; }
+    .search-input {
+      flex: 1; padding: 13px 16px; border-radius: var(--r-md); border: none;
+      background: var(--surface); font-family: var(--font); font-size: 15px; font-weight: 600;
+      color: var(--ink-1); text-transform: uppercase; letter-spacing: .5px;
+      outline: none; box-shadow: var(--shadow-card); transition: box-shadow .2s;
+    }
+    .search-input:focus { box-shadow: 0 0 0 3px var(--accent-dim), 0 1px 4px rgba(0,0,0,.08); }
+    .search-input::placeholder { text-transform: none; font-weight: 400; letter-spacing: 0; color: var(--ink-3); }
+    .search-btn {
+      padding: 0 18px; border-radius: var(--r-md); border: none;
+      background: var(--accent); color: #fff; font-family: var(--font);
+      font-size: 15px; font-weight: 600; cursor: pointer; white-space: nowrap;
+      transition: all .15s var(--ease); -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 3px 12px rgba(192,57,43,.28); display: flex; align-items: center; gap: 6px;
+    }
+    .search-btn:active { transform: scale(.96); }
+    .chk-loading {
+      display: none; align-items: center; justify-content: center;
+      gap: 10px; padding: 28px 0; font-size: 14px; color: var(--ink-2);
+    }
+    .chk-loading.show { display: flex; }
+    .spin14 {
+      width: 14px; height: 14px; border: 2px solid var(--sep-opaque);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin .7s linear infinite; flex-shrink: 0;
+    }
+    .chk-err {
+      margin: 10px 16px 0; font-size: 13px; font-weight: 500;
+      color: var(--accent); text-align: center; min-height: 16px;
+    }
+
+    /* result card */
+    .result-card {
+      margin: 16px 16px 0; border-radius: var(--r-lg); overflow: hidden;
+      box-shadow: var(--shadow-card); display: none;
+      animation: rise .3s var(--ease) both;
+    }
+    .result-card.show { display: block; }
+    .result-head { display: flex; align-items: center; gap: 12px; padding: 16px; }
+    .result-head.found    { background: var(--ok-bg); }
+    .result-head.notfound { background: rgba(192,57,43,.06); }
+    .result-badge {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .result-badge.found    { background: var(--ok); }
+    .result-badge.notfound { background: var(--accent); }
+    .result-title { font-size: 17px; font-weight: 700; letter-spacing: -.2px; }
+    .result-title.found    { color: #1a7a36; }
+    .result-title.notfound { color: var(--accent); }
+    .result-sub { font-size: 13px; margin-top: 2px; }
+    .result-sub.found    { color: #2d8a4a; }
+    .result-sub.notfound { color: #c05050; }
+    .result-grid { background: var(--surface); display: grid; grid-template-columns: 1fr 1fr; }
+    .result-cell { padding: 13px 16px; border-top: .5px solid var(--separator); }
+    .result-cell.full { grid-column: 1 / -1; }
+    .result-cell:nth-child(odd):not(.full) { border-right: .5px solid var(--separator); }
+    .result-cell-lbl {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .4px; color: var(--ink-3); margin-bottom: 3px;
+    }
+    .result-cell-val { font-size: 14px; font-weight: 600; color: var(--ink-1); }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 32px; text-align: center;
+      font-size: 12px; color: var(--ink-3); letter-spacing: .2px;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-label">Genuine Coverage</div>
+    <h1>Warranty<br><span>Registration</span></h1>
+    <p class="hero-sub">Register your product for authorised service and genuine support.</p>
+  </div>
+
+  <!-- SEGMENTED CONTROL -->
+  <div class="seg-wrap">
+    <div class="seg-ctrl" role="tablist">
+      <div class="seg-indicator" id="segIndicator"></div>
+      <button class="seg-btn active" id="tab-reg" onclick="switchTab('reg')">Register</button>
+      <button class="seg-btn"        id="tab-chk" onclick="switchTab('chk')">Check Status</button>
+    </div>
+  </div>
+
+  <!-- ══════════ REGISTER PANEL ══════════ -->
+  <div class="panel active" id="panel-reg">
+    <div id="formView">
+
+      <div class="progress-row">
+        <div class="dot" id="d1"></div>
+        <div class="dot" id="d2"></div>
+        <div class="dot" id="d3"></div>
+      </div>
+
+      <!-- Serial -->
+      <div class="group">
+        <div class="group-label">Serial Number</div>
+        <div class="group-card">
+          <div class="field-row">
+            <label>Serial No.</label>
+            <input id="r_serial" placeholder="AGC-2024-XXXXXX"
+              oninput="this.value=this.value.toUpperCase()" />
+            <svg class="field-icon" width="15" height="15" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="3" y="11" width="18" height="11" rx="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category chips -->
+      <div class="chips-group">
+        <div class="chips-label">Product Category</div>
+        <div class="chips-box" id="catChips">
+          <div class="chip" data-val="LED">LED</div>
+          <div class="chip" data-val="DashCam">Dash Cam</div>
+          <div class="chip" data-val="Mp3">MP3</div>
+          <div class="chip" data-val="Androids">Androids</div>
+          <div class="chip" data-val="Subwoofer">Subwoofer</div>
+          <div class="chip" data-val="RearView cam">Rear View Cam</div>
+          <div class="chip" data-val="Speakers">Speakers</div>
+          <div class="chip" data-val="360 cam">360 Cam</div>
+          <div class="chip" data-val="Other" id="chip-other">Other</div>
+        </div>
+        <div class="other-wrap" id="otherWrap">
+          <input id="r_other_cat" placeholder="Describe your product…" oninput="onOtherInput()" />
+        </div>
+        <input type="hidden" id="r_category" />
+      </div>
+
+      <!-- Customer -->
+      <div class="group">
+        <div class="group-label">Customer Details</div>
+        <div class="group-card">
+          <div class="field-row">
+            <label>Full Name</label>
+            <input id="r_name" placeholder="Your name" />
+          </div>
+          <div class="field-row">
+            <label>Phone</label>
+            <input id="r_phone" type="tel" placeholder="+91 XXXXX XXXXX" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Purchase -->
+      <div class="group">
+        <div class="group-label">Purchase Details</div>
+        <div class="group-card">
+          <div class="field-row">
+            <label>Date</label>
+            <input id="r_date" readonly />
+            <svg class="field-icon" width="14" height="14" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+            </svg>
+          </div>
+          <div class="field-row has-select">
+            <label>Location</label>
+            <select id="r_location">
+              <option value="">Select district</option>
+              <option>Out of Kerala</option>
+              <option>Alappuzha</option>
+              <option>Ernakulam</option>
+              <option>Idukki</option>
+              <option>Kannur</option>
+              <option>Kasaragod</option>
+              <option>Kollam</option>
+              <option>Kottayam</option>
+              <option>Kozhikode</option>
+              <option>Malappuram</option>
+              <option>Palakkad</option>
+              <option>Pathanamthitta</option>
+              <option>Thiruvananthapuram</option>
+              <option>Thrissur</option>
+              <option>Wayanad</option>
+            </select>
+          </div>
+          <div class="field-row">
+            <label>Shop / Dealer</label>
+            <input id="r_shop" placeholder="Where you bought it" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="cta-wrap">
+        <button class="cta-btn" id="submitBtn" onclick="onRegister()">Register Warranty</button>
+        <button class="clear-btn" onclick="clearForm()">Clear All</button>
+        <div class="status-msg" id="r_status"></div>
+      </div>
+
+    </div><!-- /formView -->
+
+    <!-- Success -->
+    <div id="successView">
+      <div class="success-icon">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none"
+          stroke="var(--ok)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <h2>All Set!</h2>
+      <p>Your product is now registered.<br>Keep this for your records.</p>
+      <div class="conf-list">
+        <div class="conf-row">
+          <span class="conf-lbl">Serial No.</span>
+          <span class="conf-val" id="conf_serial"></span>
+        </div>
+        <div class="conf-row">
+          <span class="conf-lbl">Registered On</span>
+          <span class="conf-val" id="conf_date"></span>
+        </div>
+        <div class="conf-row">
+          <span class="conf-lbl">Category</span>
+          <span class="conf-val" id="conf_cat"></span>
+        </div>
+        <div class="conf-row">
+          <span class="conf-lbl">Customer</span>
+          <span class="conf-val" id="conf_name"></span>
+        </div>
+      </div>
+      <button class="again-btn" onclick="resetForm()">Register Another Product</button>
+    </div>
+  </div><!-- /panel-reg -->
+
+  <!-- ══════════ CHECK PANEL ══════════ -->
+  <div class="panel" id="panel-chk">
+    <div class="check-hero">
+      <h2>Warranty Status</h2>
+      <p>Enter a serial number to view registration details and coverage.</p>
+    </div>
+    <div class="search-group">
+      <input class="search-input" id="chk_serial"
+        placeholder="Enter serial number"
+        oninput="this.value=this.value.toUpperCase()"
+        onkeydown="if(event.key==='Enter') doCheck()" />
+      <button class="search-btn" onclick="doCheck()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.3" stroke-linecap="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        Check
+      </button>
+    </div>
+    <div class="chk-loading" id="chk_loading">
+      <div class="spin14"></div> Looking up serial number…
+    </div>
+    <div class="chk-err" id="chk_error"></div>
+    <div class="result-card" id="chk_result">
+      <div class="result-head" id="chk_header">
+        <div class="result-badge" id="chk_badge"></div>
+        <div>
+          <div class="result-title" id="chk_result_title"></div>
+          <div class="result-sub"   id="chk_result_sub"></div>
+        </div>
+      </div>
+      <div class="result-grid" id="chk_details"></div>
+    </div>
+    <div style="height:24px"></div>
+  </div><!-- /panel-chk -->
+
+  <div class="footer">Genuine Warranty Program</div>
+</div>
+
+<script>
+  const API_URL = 'https://script.google.com/macros/s/AKfycbwZApb1xeehioasUH31aBSt3XI9A08wzq_xgxeTw4M75m0EPEY3Cuxt6rRmDzo7p6Yk3Q/exec';
+
+  let selectedCat = '';
+  let isOther     = false;
+
+  function fmtDate(d) {
+    return String(d.getDate()).padStart(2,'0') + '-' +
+           String(d.getMonth()+1).padStart(2,'0') + '-' + d.getFullYear();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('r_date').value = fmtDate(new Date());
+
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        isOther = chip.dataset.val === 'Other';
+        document.getElementById('otherWrap').classList.toggle('open', isOther);
+        if (!isOther) {
+          selectedCat = chip.dataset.val;
+          document.getElementById('r_category').value = selectedCat;
+          document.getElementById('r_other_cat').value = '';
+        } else {
+          selectedCat = document.getElementById('r_other_cat').value.trim();
+          document.getElementById('r_category').value = selectedCat;
+          setTimeout(() => document.getElementById('r_other_cat').focus(), 310);
+        }
+        updateProgress();
+      });
+    });
+
+    ['r_serial','r_name','r_phone','r_shop','r_location'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('input', updateProgress);
+      el.addEventListener('change', updateProgress);
+    });
+  });
+
+  function onOtherInput() {
+    selectedCat = document.getElementById('r_other_cat').value.trim();
+    document.getElementById('r_category').value = selectedCat;
+    updateProgress();
+  }
+
+  function switchTab(tab) {
+    ['reg','chk'].forEach(t => {
+      document.getElementById('panel-' + t).classList.toggle('active', t === tab);
+      document.getElementById('tab-'   + t).classList.toggle('active', t === tab);
+    });
+    document.getElementById('segIndicator').classList.toggle('right', tab === 'chk');
+  }
+
+  function updateProgress() {
+    const s   = document.getElementById('r_serial').value.trim();
+    const n   = document.getElementById('r_name').value.trim();
+    const p   = document.getElementById('r_phone').value.trim();
+    const sh  = document.getElementById('r_shop').value.trim();
+    const loc = document.getElementById('r_location').value;
+    let step = 1;
+    if (s && selectedCat)                        step = 2;
+    if (s && selectedCat && n && p)              step = 3;
+    if (s && selectedCat && n && p && sh && loc) step = 4;
+    for (let i = 1; i <= 3; i++) {
+      document.getElementById('d' + i).classList.toggle('filled', i < step);
+    }
+  }
+
+  async function onRegister() {
+    const statusEl = document.getElementById('r_status');
+    const btn      = document.getElementById('submitBtn');
+    const s   = document.getElementById('r_serial').value.trim();
+    const n   = document.getElementById('r_name').value.trim();
+    const p   = document.getElementById('r_phone').value.trim();
+    const sh  = document.getElementById('r_shop').value.trim();
+    const loc = document.getElementById('r_location').value;
+    const dt  = document.getElementById('r_date').value;
+
+    if (!s || !selectedCat || !n || !p || !sh || !loc) {
+      statusEl.textContent = 'Please complete all fields before submitting.';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="btn-spinner"></span>Submitting…';
+    statusEl.textContent = '';
+
+    document.getElementById('conf_serial').textContent = s;
+    document.getElementById('conf_date').textContent   = dt;
+    document.getElementById('conf_cat').textContent    = selectedCat;
+    document.getElementById('conf_name').textContent   = n;
+
+    const payload = {
+      action: 'register', serial: s, category: selectedCat,
+      customerName: n, phone: p, purchaseDate: dt, shop: sh, notes: loc
+    };
+
+    try {
+      const res  = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        showSuccess();
+      } else {
+        statusEl.textContent = data.error || 'Something went wrong. Try again.';
+        btn.disabled = false;
+        btn.textContent = 'Register Warranty';
+      }
+    } catch {
+      statusEl.textContent = 'Network error. Check your connection and try again.';
+      btn.disabled = false;
+      btn.textContent = 'Register Warranty';
+    }
+  }
+
+  function showSuccess() {
+    document.getElementById('formView').style.display    = 'none';
+    document.getElementById('successView').style.display = 'block';
+  }
+
+  function clearForm() {
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    selectedCat = ''; isOther = false;
+    ['r_category','r_name','r_phone','r_shop','r_other_cat'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('r_location').value = '';
+    document.getElementById('r_serial').value   = '';
+    document.getElementById('r_date').value     = fmtDate(new Date());
+    document.getElementById('r_status').textContent = '';
+    document.getElementById('otherWrap').classList.remove('open');
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = false; btn.textContent = 'Register Warranty';
+    updateProgress();
+  }
+
+  function resetForm() {
+    clearForm();
+    document.getElementById('formView').style.display    = 'block';
+    document.getElementById('successView').style.display = 'none';
+  }
+
+  async function doCheck() {
+    const sn = document.getElementById('chk_serial').value.trim();
+    if (!sn) {
+      document.getElementById('chk_error').textContent = 'Please enter a serial number.';
+      return;
+    }
+    document.getElementById('chk_error').textContent = '';
+    document.getElementById('chk_result').classList.remove('show');
+    document.getElementById('chk_loading').classList.add('show');
+    try {
+      const resp = await fetch(`${API_URL}?action=check&serial=${encodeURIComponent(sn)}`);
+      const res  = await resp.json();
+      document.getElementById('chk_loading').classList.remove('show');
+      showCheckResult(res);
+    } catch {
+      document.getElementById('chk_loading').classList.remove('show');
+      document.getElementById('chk_error').textContent = 'Lookup failed. Please try again.';
+    }
+  }
+
+  function showCheckResult(res) {
+    const resultEl  = document.getElementById('chk_result');
+    const headerEl  = document.getElementById('chk_header');
+    const badgeEl   = document.getElementById('chk_badge');
+    const titleEl   = document.getElementById('chk_result_title');
+    const subEl     = document.getElementById('chk_result_sub');
+    const detailsEl = document.getElementById('chk_details');
+    resultEl.classList.add('show');
+    if (res.found) {
+      headerEl.className = 'result-head found';
+      badgeEl.className  = 'result-badge found';
+      badgeEl.innerHTML  = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+      titleEl.className  = 'result-title found'; titleEl.textContent = 'Warranty Active';
+      subEl.className    = 'result-sub found';   subEl.textContent   = 'Registered & covered';
+      detailsEl.innerHTML = `
+        <div class="result-cell"><div class="result-cell-lbl">Registered On</div><div class="result-cell-val">${res.registeredOn||'—'}</div></div>
+        <div class="result-cell"><div class="result-cell-lbl">Category</div><div class="result-cell-val">${res.category||'—'}</div></div>
+        <div class="result-cell"><div class="result-cell-lbl">Customer</div><div class="result-cell-val">${res.customerName||'—'}</div></div>
+        <div class="result-cell"><div class="result-cell-lbl">Phone</div><div class="result-cell-val">${res.phone||'—'}</div></div>
+        <div class="result-cell"><div class="result-cell-lbl">Purchase Date</div><div class="result-cell-val">${res.purchaseDate||'—'}</div></div>
+        <div class="result-cell"><div class="result-cell-lbl">Location</div><div class="result-cell-val">${res.location||'—'}</div></div>
+        <div class="result-cell full"><div class="result-cell-lbl">Shop / Dealer</div><div class="result-cell-val">${res.shop||'—'}</div></div>`;
+    } else {
+      headerEl.className = 'result-head notfound';
+      badgeEl.className  = 'result-badge notfound';
+      badgeEl.innerHTML  = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+      titleEl.className  = 'result-title notfound'; titleEl.textContent = 'Not Registered';
+      subEl.className    = 'result-sub notfound';   subEl.textContent   = 'No record found for this serial';
+      detailsEl.innerHTML = '';
+    }
+  }
+</script>
+</body>
+</html>
