@@ -648,9 +648,9 @@
     };
 
     try {
+      // FIX: No 'Content-Type' header — avoids CORS preflight that Google Apps Script cannot handle
       const res  = await fetch(API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
       const data = await res.json();
